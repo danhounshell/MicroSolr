@@ -16,14 +16,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+
 namespace MicroSolr.Core
 {
-    using System;
-    using System.Net;
-    using System.Collections.Generic;
-
     /// <summary>
-    /// TODO: Update summary.
+    ///     TODO: Update summary.
     /// </summary>
     public interface IClient
     {

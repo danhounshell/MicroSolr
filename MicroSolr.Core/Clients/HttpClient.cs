@@ -16,19 +16,19 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace MicroSolr.Core.Clients
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     /// <summary>
-    /// TODO: Update summary.
+    ///     TODO: Update summary.
     /// </summary>
     public class HttpClient : IClient
     {
-        private ICore _defaultCore;
+        private readonly ICore _defaultCore;
+
         public HttpClient(Uri baseUri)
         {
             BaseUri = baseUri;
@@ -36,17 +36,9 @@ namespace MicroSolr.Core.Clients
             _defaultCore = null;
         }
 
-        public Uri BaseUri
-        {
-            get;
-            private set;
-        }
+        public Uri BaseUri { get; private set; }
 
-        public IList<ICore> Cores
-        {
-            get;
-            private set;
-        }
+        public IList<ICore> Cores { get; private set; }
 
         public ICore DefaultCore
         {

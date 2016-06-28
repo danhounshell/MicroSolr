@@ -18,16 +18,10 @@
 
 namespace MicroSolr.Connectors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     /// <summary>
-    /// Simple Solr connection class that uses JSON Serialization to load and save data
+    ///     Simple Solr connection class that uses JSON Serialization to load and save data
     /// </summary>
     public interface ISimpleConnector<TData> : IConnector<TData>
     {
-        
     }
 }

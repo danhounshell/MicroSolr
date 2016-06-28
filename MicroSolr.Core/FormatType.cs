@@ -19,7 +19,7 @@
 namespace MicroSolr.Core
 {
     /// <summary>
-    /// TODO: Update summary.
+    ///     TODO: Update summary.
     /// </summary>
     public enum FormatType
     {

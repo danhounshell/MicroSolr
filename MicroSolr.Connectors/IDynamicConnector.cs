@@ -18,13 +18,8 @@
 
 namespace MicroSolr.Connectors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     /// <summary>
-    /// Dynamic connecto that has the ability to do parallel operations
+    ///     Dynamic connecto that has the ability to do parallel operations
     /// </summary>
     public interface IDynamicConnector<TData> : ISimpleConnector<TData>
     {

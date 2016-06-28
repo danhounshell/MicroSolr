@@ -16,73 +16,66 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
+using MicroSolr.Core.Web;
+
 namespace MicroSolr.Core.Operations
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Xml.Linq;
-    using MicroSolr.Core.Web;
-
     /// <summary>
-    /// TODO: Update summary.
+    ///     TODO: Update summary.
     /// </summary>
     public abstract class BaseOperations : IOperations
     {
         protected IHttpHelper _httpHelper;
 
-        public abstract IEnumerable<TOutput> Load<TOutput>(ILoadCommand command, IDataSerializer<TOutput> serializer, IResponseFormatter<string> formatter);
-
-        public abstract IOperations Save<TData>(ISaveCommand<TData> command, IDataSerializer<TData> serializer, bool commit = true, bool optimize = false);
-
         public BaseOperations(Uri baseUri, string coreName, IHttpHelper httpHelper)
         {
             _httpHelper = httpHelper ?? new StatelessHttpHelper();
             CoreUri = new Uri(string.Format("{0}/{1}/", baseUri.ToString().TrimEnd('/'), coreName));
-            SelectUri = new Uri(CoreUri.ToString() + "select/");
-            UpdateUri = new Uri(CoreUri.ToString() + "update/");
+            SelectUri = new Uri(CoreUri + "select/");
+            UpdateUri = new Uri(CoreUri + "update/");
         }
+
+        protected Uri CoreUri { get; private set; }
+
+        protected Uri SelectUri { get; private set; }
+
+        protected Uri UpdateUri { get; private set; }
+
+        public abstract IEnumerable<TOutput> Load<TOutput>(ILoadCommand command, IDataSerializer<TOutput> serializer,
+            IResponseFormatter<string> formatter);
+
+        public abstract IOperations Save<TData>(ISaveCommand<TData> command, IDataSerializer<TData> serializer,
+            bool commit = true, bool optimize = false);
+
+        public abstract IOperations Delete(string query);
 
         public virtual IOperations Commit()
         {
-            Uri u = MakeUri(UpdateUri, "commit=true");
+            var u = MakeUri(UpdateUri, "commit=true");
             _httpHelper.Get(u);
             return this;
         }
 
         public virtual IOperations Optimize()
         {
-            Uri u = MakeUri(UpdateUri, "optimize=true");
+            var u = MakeUri(UpdateUri, "optimize=true");
             _httpHelper.Get(u);
             return this;
         }
 
-        protected Uri CoreUri
-        {
-            get;
-            private set;
-        }
-
-        protected Uri SelectUri
-        {
-            get;
-            private set;
-        }
-
-        protected Uri UpdateUri
-        {
-            get;
-            private set;
-        }
-
         protected long GetRowCountForResults(ILoadCommand command)
         {
-            string qs = MakeRowCountQueryString(command);
-            Uri rowCountUri = MakeUri(SelectUri, qs);
-            string results = _httpHelper.Get(rowCountUri);
-            XDocument resultsDoc = XDocument.Parse(results);
-            var rootNode = (from r in resultsDoc.Descendants() where r.Attribute("name").Name == "response" select r).First();
+            var qs = MakeRowCountQueryString(command);
+            var rowCountUri = MakeUri(SelectUri, qs);
+            var results = _httpHelper.Get(rowCountUri);
+            var resultsDoc = XDocument.Parse(results);
+            var rootNode =
+                (from r in resultsDoc.Descendants() where r.Attribute("name").Name == "response" select r).First();
             long rows = 0;
             var val = rootNode.Attribute("numFound").Value;
             long.TryParse(val, out rows);
@@ -90,15 +83,17 @@ namespace MicroSolr.Core.Operations
             return rows;
         }
 
-        protected IEnumerable<TOutput> ExecuteLoad<TOutput>(string loadQS, FormatType responseFormat, IDataSerializer<TOutput> serializer, IResponseFormatter<string> formatter)
+        protected IEnumerable<TOutput> ExecuteLoad<TOutput>(string loadQS, FormatType responseFormat,
+            IDataSerializer<TOutput> serializer, IResponseFormatter<string> formatter)
         {
-            Uri loadUri = MakeUri(SelectUri, loadQS);
-            string response = _httpHelper.Get(loadUri);
-            string formattedResponse = formatter != null ? formatter.Format(response) : response;
+            var loadUri = MakeUri(SelectUri, loadQS);
+            var response = _httpHelper.Get(loadUri);
+            var formattedResponse = formatter != null ? formatter.Format(response) : response;
             return serializer.DeSerialize(formattedResponse, responseFormat);
         }
 
-        protected IOperations ExecuteSave<TData>(IEnumerable<TData> data, IDataSerializer<TData> serializer, bool commit, bool optimize)
+        protected IOperations ExecuteSave<TData>(IEnumerable<TData> data, IDataSerializer<TData> serializer, bool commit,
+            bool optimize)
         {
             _httpHelper.Post(UpdateUri, serializer.Serialize(data, FormatType.JSON), "application/json", Encoding.UTF8);
             if (commit) Commit();
@@ -106,9 +101,16 @@ namespace MicroSolr.Core.Operations
             return this;
         }
 
+        protected IOperations ExecuteDelete(string query)
+        {
+            query = "{\"delete\": {" + query + "}}";
+            _httpHelper.Post(UpdateUri, query, "application/json", Encoding.UTF8);
+            return this;
+        }
+
         protected static Uri MakeUri(Uri baseUri, string queryString)
         {
-            UriBuilder builder = new UriBuilder(baseUri);
+            var builder = new UriBuilder(baseUri);
             builder.Query = queryString;
             return builder.Uri;
         }
@@ -121,7 +123,7 @@ namespace MicroSolr.Core.Operations
                 qsParts.Add("q", command.Query);
             }
 
-            qsParts.Add("wt", Enum.GetName(typeof(FormatType), command.ResponseFormat).ToLowerInvariant());
+            qsParts.Add("wt", Enum.GetName(typeof (FormatType), command.ResponseFormat).ToLowerInvariant());
             return QueryStringFromDicionary(qsParts);
         }
 

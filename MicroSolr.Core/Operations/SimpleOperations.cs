@@ -16,25 +16,24 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+
 namespace MicroSolr.Core.Operations
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     /// <summary>
-    /// TODO: Update summary.
+    ///     TODO: Update summary.
     /// </summary>
     public class SimpleOperations : BaseOperations
     {
         public SimpleOperations(Uri baseUri, string coreName, IHttpHelper httpHelper = null)
             : base(baseUri, coreName, httpHelper)
         {
-
         }
 
-        public override IEnumerable<TOutput> Load<TOutput>(ILoadCommand command, IDataSerializer<TOutput> serializer, IResponseFormatter<string> formatter)
+        public override IEnumerable<TOutput> Load<TOutput>(ILoadCommand command, IDataSerializer<TOutput> serializer,
+            IResponseFormatter<string> formatter)
         {
             if (command.GetAll)
             {
@@ -43,17 +42,23 @@ namespace MicroSolr.Core.Operations
 
             if (command.MaxRows > 100000)
             {
-                System.Diagnostics.Debug.WriteLine("Too many rows. Try using concurrent library.");
+                Debug.WriteLine("Too many rows. Try using concurrent library.");
             }
 
-            string loadQS = MakeLoadQueryString(command);
+            var loadQS = MakeLoadQueryString(command);
 
             return ExecuteLoad(loadQS, command.ResponseFormat, serializer, formatter);
         }
 
-        public override IOperations Save<TData>(ISaveCommand<TData> command, IDataSerializer<TData> serializer, bool commit = true, bool optimize = false)
+        public override IOperations Save<TData>(ISaveCommand<TData> command, IDataSerializer<TData> serializer,
+            bool commit = true, bool optimize = false)
         {
             return ExecuteSave(command.Data, serializer, commit, optimize);
+        }
+
+        public override IOperations Delete(string query)
+        {
+            return ExecuteDelete(query);
         }
     }
 }

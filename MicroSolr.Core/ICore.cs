@@ -18,9 +18,8 @@
 
 namespace MicroSolr.Core
 {
-    using System;
     /// <summary>
-    /// TODO: Update summary.
+    ///     TODO: Update summary.
     /// </summary>
     public interface ICore
     {
@@ -28,10 +27,10 @@ namespace MicroSolr.Core
 
         IOperations Operations { get; }
 
+        IClient Client { get; }
+
         ILoadCommand CreateLoadCommand();
 
         ISaveCommand<TData> CreateSaveCommand<TData>();
-
-        IClient Client { get; }
     }
 }

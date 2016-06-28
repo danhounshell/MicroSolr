@@ -16,45 +16,48 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace MicroSolr.Core.Operations
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     /// <summary>
-    /// TODO: Update summary.
+    ///     TODO: Update summary.
     /// </summary>
     public class ParallelOperations : SimpleOperations
     {
         private readonly long _readSplitSize;
         private readonly long _writeSplitSize;
 
-        public ParallelOperations(Uri baseUri, string coreName, IHttpHelper httpHelper = null, long readSplitSize = 1000, long writeSplitSize = 1000)
+        public ParallelOperations(Uri baseUri, string coreName, IHttpHelper httpHelper = null, long readSplitSize = 1000,
+            long writeSplitSize = 1000)
             : base(baseUri, coreName, httpHelper)
         {
             _readSplitSize = readSplitSize;
             _writeSplitSize = writeSplitSize;
         }
 
-        public override IEnumerable<TOutput> Load<TOutput>(ILoadCommand command, IDataSerializer<TOutput> serializer, IResponseFormatter<string> formatter)
+        public override IEnumerable<TOutput> Load<TOutput>(ILoadCommand command, IDataSerializer<TOutput> serializer,
+            IResponseFormatter<string> formatter)
         {
-            long maxRows = GetRowCountForResults(command);
+            var maxRows = GetRowCountForResults(command);
 
             if (maxRows > _readSplitSize)
             {
-                List<TOutput> results = new List<TOutput>();
-                List<string> commands = new List<string>();
+                var results = new List<TOutput>();
+                var commands = new List<string>();
 
-                for (long startIndex = command.StartIndex, batchNum = 0; startIndex < maxRows; startIndex += (batchNum * _readSplitSize), batchNum++)
+                for (long startIndex = command.StartIndex, batchNum = 0;
+                    startIndex < maxRows;
+                    startIndex += batchNum*_readSplitSize, batchNum++)
                 {
-                    ILoadCommand copyCommand = command.Clone() as ILoadCommand;
+                    var copyCommand = command.Clone() as ILoadCommand;
                     copyCommand.GetAll = false;
                     copyCommand.StartIndex = startIndex;
                     copyCommand.MaxRows = _readSplitSize;
 
-                    string batchCommand = MakeLoadQueryString(copyCommand);
+                    var batchCommand = MakeLoadQueryString(copyCommand);
 
                     commands.Add(batchCommand);
                 }
@@ -69,36 +72,34 @@ namespace MicroSolr.Core.Operations
 
                 return results;
             }
-            else
-            {
-                //Downgrade to simple operations
-                return base.Load(command, serializer, formatter);
-            }
+            //Downgrade to simple operations
+            return base.Load(command, serializer, formatter);
         }
 
-        public override IOperations Save<TData>(ISaveCommand<TData> command, IDataSerializer<TData> serializer, bool commit = true, bool optimize = false)
+        public override IOperations Save<TData>(ISaveCommand<TData> command, IDataSerializer<TData> serializer,
+            bool commit = true, bool optimize = false)
         {
-            long dataLength = command.Data.LongCount();
+            var dataLength = command.Data.LongCount();
             if (dataLength > _writeSplitSize)
             {
                 IList<long> batchNumbers = new List<long>();
-                for (long startRow = 0, batchNumber = 0; startRow < dataLength; startRow += _writeSplitSize, batchNumber++)
+                for (long startRow = 0, batchNumber = 0;
+                    startRow < dataLength;
+                    startRow += _writeSplitSize, batchNumber++)
                 {
                     batchNumbers.Add(batchNumber);
                 }
 
                 batchNumbers.AsParallel().ForAll(b =>
                 {
-                    var data = from c in command.Data.Skip((int)(b * _writeSplitSize)).Take((int)_writeSplitSize) select c;
-                    base.ExecuteSave(data, serializer, commit, optimize);
+                    var data = from c in command.Data.Skip((int) (b*_writeSplitSize)).Take((int) _writeSplitSize)
+                        select c;
+                    ExecuteSave(data, serializer, commit, optimize);
                 });
                 return this;
             }
-            else
-            {
-                //Downgrade to simple operations
-                return base.Save(command, serializer, commit, optimize);
-            }
+            //Downgrade to simple operations
+            return base.Save(command, serializer, commit, optimize);
         }
     }
 }

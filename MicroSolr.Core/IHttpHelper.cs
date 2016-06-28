@@ -16,15 +16,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using System.Text;
+
 namespace MicroSolr.Core
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     /// <summary>
-    /// TODO: Update summary.
+    ///     TODO: Update summary.
     /// </summary>
     public interface IHttpHelper
     {

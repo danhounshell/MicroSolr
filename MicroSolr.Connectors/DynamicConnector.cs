@@ -16,32 +16,29 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using MicroSolr.Core;
+using MicroSolr.Core.Clients;
+using MicroSolr.Core.Cores;
+using MicroSolr.Core.Operations;
+
 namespace MicroSolr.Connectors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using MicroSolr.Core.Clients;
-    using MicroSolr.Core;
-    using MicroSolr.Core.Cores;
-    using MicroSolr.Core.Operations;
-
     /// <summary>
-    /// A dynamic connector class that will use parallel operations for queries
+    ///     A dynamic connector class that will use parallel operations for queries
     /// </summary>
     /// <typeparam name="TData">The type of the data.</typeparam>
     public class DynamicConnector<TData> : BaseConnector<TData>, IDynamicConnector<TData>
     {
-        public static IDynamicConnector<TData> Create(string serverUrl, params string[] coreNames)
-        {
-            return new DynamicConnector<TData>(new HttpClient(new Uri(serverUrl)), null, coreNames);
-        }
-
         public DynamicConnector(IClient client, IDataSerializer<TData> serializer, params string[] coreNames)
             : base(client, serializer)
         {
-            base.AssembleConnector(coreNames);
+            AssembleConnector(coreNames);
+        }
+
+        public static IDynamicConnector<TData> Create(string serverUrl, params string[] coreNames)
+        {
+            return new DynamicConnector<TData>(new HttpClient(new Uri(serverUrl)), null, coreNames);
         }
 
         protected override ICore CreateCore(string coreName, IClient client)

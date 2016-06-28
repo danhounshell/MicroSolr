@@ -16,32 +16,34 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.Collections.Generic;
+
 namespace MicroSolr.Connectors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     /// <summary>
-    /// TODO: Update summary.
+    ///     TODO: Update summary.
     /// </summary>
     public interface IConnector<TData>
     {
         /// <summary>
-        /// Queries the core and returns a list of matching objects
+        ///     Queries the core and returns a list of matching objects
         /// </summary>
         /// <param name="query">Solr query (q=)</param>
         /// <param name="startIndex">Result start index</param>
         /// <param name="maxRows">Maximum rows to be returned</param>
-        /// <param name="getAll">If <c>true</c> returns all the rows from the results. maxRows will be ignored when this is set to true.</param>
+        /// <param name="getAll">
+        ///     If <c>true</c> returns all the rows from the results. maxRows will be ignored when this is set to
+        ///     true.
+        /// </param>
         /// <returns>List of matching objects.</returns>
         IEnumerable<TData> Query(string query, long startIndex = 0, long maxRows = 1000, bool getAll = false);
 
         /// <summary>
-        /// Saves all the objects in the solr core. Commit will be  called automatically after all the objects are saved.
+        ///     Saves all the objects in the solr core. Commit will be  called automatically after all the objects are saved.
         /// </summary>
         /// <param name="items">List of items</param>
         void Save(params TData[] items);
+
+        void Delete(string query);
     }
 }

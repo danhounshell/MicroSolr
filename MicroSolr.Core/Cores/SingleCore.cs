@@ -16,17 +16,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using MicroSolr.Core.Commands;
+using MicroSolr.Core.Operations;
+
 namespace MicroSolr.Core.Cores
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using MicroSolr.Core.Commands;
-    using MicroSolr.Core.Operations;
-
     /// <summary>
-    /// TODO: Update summary.
+    ///     TODO: Update summary.
     /// </summary>
     public class SingleCore : ICore
     {
@@ -34,26 +30,14 @@ namespace MicroSolr.Core.Cores
         {
             Name = name;
             Client = client;
-            Operations = operations ?? new SimpleOperations(this.Client.BaseUri, name);
+            Operations = operations ?? new SimpleOperations(Client.BaseUri, name);
         }
 
-        public string Name
-        {
-            get;
-            private set;
-        }
+        public string Name { get; private set; }
 
-        public IOperations Operations
-        {
-            get;
-            private set;
-        }
+        public IOperations Operations { get; private set; }
 
-        public IClient Client
-        {
-            get;
-            private set;
-        }
+        public IClient Client { get; private set; }
 
 
         public ILoadCommand CreateLoadCommand()
@@ -63,7 +47,7 @@ namespace MicroSolr.Core.Cores
 
         public ISaveCommand<TData> CreateSaveCommand<TData>()
         {
-            return new SaveCommand<TData>() ;
+            return new SaveCommand<TData>();
         }
     }
 }

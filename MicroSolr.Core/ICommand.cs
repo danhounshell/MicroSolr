@@ -18,10 +18,8 @@
 
 namespace MicroSolr.Core
 {
-    using System;
-    
     /// <summary>
-    /// Identifies a basic command
+    ///     Identifies a basic command
     /// </summary>
     public interface ICommand
     {

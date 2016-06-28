@@ -16,26 +16,28 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using MicroSolr.Core;
+using MicroSolr.Core.Clients;
+using MicroSolr.Core.Cores;
+using MicroSolr.Core.Operations;
+
 namespace MicroSolr.Connectors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using MicroSolr.Core;
-    using MicroSolr.Core.Serializers;
-    using MicroSolr.Core.Clients;
-    using MicroSolr.Core.Cores;
-    using MicroSolr.Core.Operations;
-
     /// <summary>
-    /// Simple Solr connection class that uses JSON Serialization to load and save data
+    ///     Simple Solr connection class that uses JSON Serialization to load and save data
     /// </summary>
     /// <typeparam name="TData">The type of the data.</typeparam>
     public class SimpleConnector<TData> : BaseConnector<TData>, ISimpleConnector<TData>
     {
+        public SimpleConnector(IClient client, string coreName, IDataSerializer<TData> serializer = null)
+            : base(client, serializer)
+        {
+            AssembleConnector(coreName);
+        }
+
         /// <summary>
-        /// Creates a simple connector instance from the url and core name
+        ///     Creates a simple connector instance from the url and core name
         /// </summary>
         /// <param name="serverUrl">Base url of the server without core name</param>
         /// <param name="coreName">Core name</param>
@@ -44,12 +46,6 @@ namespace MicroSolr.Connectors
         {
             var client = new HttpClient(new Uri(serverUrl));
             return new SimpleConnector<TData>(client, coreName);
-        }
-
-        public SimpleConnector(IClient client, string coreName, IDataSerializer<TData> serializer = null)
-            :base(client, serializer)
-        {
-            AssembleConnector(coreName);
         }
 
         protected override ICore CreateCore(string coreName, IClient client)

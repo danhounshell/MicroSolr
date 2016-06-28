@@ -16,15 +16,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.Collections.Generic;
+
 namespace MicroSolr.Core
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     /// <summary>
-    /// Serializer for generating Solr compatible streams.
+    ///     Serializer for generating Solr compatible streams.
     /// </summary>
     public interface IDataSerializer<TData>
     {

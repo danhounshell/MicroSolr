@@ -16,12 +16,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+
 namespace MicroSolr.Core
 {
-    using System;
-
     /// <summary>
-    /// TODO: Update summary.
+    ///     TODO: Update summary.
     /// </summary>
     public interface ILoadCommand : ICommand, ICloneable
     {
