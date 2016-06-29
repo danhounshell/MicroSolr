@@ -75,9 +75,34 @@ namespace MicroSolr.Connectors
             return _client.DefaultCore.Operations.Load(cmd, _serializer, null);
         }
 
-        public virtual void Delete(string query)
+
+        /// <summary>
+        ///     Queries the core and returns a list of matching objects
+        /// </summary>
+        /// <param name="query">Solr query (q=)</param>
+        /// <param name="startIndex">Result start index</param>
+        /// <param name="maxRows">Maximum rows to be returned</param>
+        /// <param name="getAll">
+        ///     If <c>true</c> returns all the rows from the results. maxRows will be ignored when this is set to
+        ///     true.
+        /// </param>
+        /// <returns>List of matching objects.</returns>
+        public virtual IEnumerable<TData> Query(string query, out long start, out long numFound, long startIndex = 0, long maxRows = 1000,
+            bool getAll = false)
         {
-            _client.DefaultCore.Operations.Delete(query);
+            var cmd = _client.DefaultCore.CreateLoadCommand();
+            cmd.Query = query;
+            cmd.ResponseFormat = FormatType.JSON;
+            cmd.StartIndex = startIndex;
+            cmd.MaxRows = maxRows;
+            cmd.GetAll = getAll;
+
+            return _client.DefaultCore.Operations.Load(cmd, _serializer, null, out start, out numFound);
+        }
+
+        public virtual void Delete(string query, bool commit = true)
+        {
+            _client.DefaultCore.Operations.Delete(query, commit);
         }
 
         protected void AssembleConnector(params string[] coreNames)

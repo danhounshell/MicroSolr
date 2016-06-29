@@ -50,15 +50,33 @@ namespace MicroSolr.Core.Operations
             return ExecuteLoad(loadQS, command.ResponseFormat, serializer, formatter);
         }
 
+        public override IEnumerable<TOutput> Load<TOutput>(ILoadCommand command, IDataSerializer<TOutput> serializer,
+            IResponseFormatter<string> formatter, out long start, out long numFound)
+        {
+            if (command.GetAll)
+            {
+                command.MaxRows = GetRowCountForResults(command);
+            }
+
+            if (command.MaxRows > 100000)
+            {
+                Debug.WriteLine("Too many rows. Try using concurrent library.");
+            }
+
+            var loadQS = MakeLoadQueryString(command);
+
+            return ExecuteLoad(loadQS, command.ResponseFormat, serializer, formatter, out start, out numFound);
+        }
+
         public override IOperations Save<TData>(ISaveCommand<TData> command, IDataSerializer<TData> serializer,
             bool commit = true, bool optimize = false)
         {
             return ExecuteSave(command.Data, serializer, commit, optimize);
         }
 
-        public override IOperations Delete(string query)
+        public override IOperations Delete(string query, bool commit = true)
         {
-            return ExecuteDelete(query);
+            return ExecuteDelete(query, commit);
         }
     }
 }

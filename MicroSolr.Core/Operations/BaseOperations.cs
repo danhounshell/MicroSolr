@@ -49,10 +49,13 @@ namespace MicroSolr.Core.Operations
         public abstract IEnumerable<TOutput> Load<TOutput>(ILoadCommand command, IDataSerializer<TOutput> serializer,
             IResponseFormatter<string> formatter);
 
+        public abstract IEnumerable<TOutput> Load<TOutput>(ILoadCommand command, IDataSerializer<TOutput> serializer,
+            IResponseFormatter<string> formatter, out long start, out long numFound);
+
         public abstract IOperations Save<TData>(ISaveCommand<TData> command, IDataSerializer<TData> serializer,
             bool commit = true, bool optimize = false);
 
-        public abstract IOperations Delete(string query);
+        public abstract IOperations Delete(string query, bool commit = true);
 
         public virtual IOperations Commit()
         {
@@ -86,25 +89,38 @@ namespace MicroSolr.Core.Operations
         protected IEnumerable<TOutput> ExecuteLoad<TOutput>(string loadQS, FormatType responseFormat,
             IDataSerializer<TOutput> serializer, IResponseFormatter<string> formatter)
         {
+            long start = 0;
+            long numFound = 0;
             var loadUri = MakeUri(SelectUri, loadQS);
             var response = _httpHelper.Get(loadUri);
             var formattedResponse = formatter != null ? formatter.Format(response) : response;
-            return serializer.DeSerialize(formattedResponse, responseFormat);
+            return serializer.DeSerialize(formattedResponse, responseFormat, out start, out numFound);
+        }
+
+        protected IEnumerable<TOutput> ExecuteLoad<TOutput>(string loadQS, FormatType responseFormat,
+            IDataSerializer<TOutput> serializer, IResponseFormatter<string> formatter, out long start, out long numFound)
+        {
+            var loadUri = MakeUri(SelectUri, loadQS);
+            var response = _httpHelper.Get(loadUri);
+            var formattedResponse = formatter != null ? formatter.Format(response) : response;
+            return serializer.DeSerialize(formattedResponse, responseFormat, out start, out numFound);
         }
 
         protected IOperations ExecuteSave<TData>(IEnumerable<TData> data, IDataSerializer<TData> serializer, bool commit,
             bool optimize)
         {
-            _httpHelper.Post(UpdateUri, serializer.Serialize(data, FormatType.JSON), "application/json", Encoding.UTF8);
+            var saveData = serializer.Serialize(data, FormatType.JSON);
+            _httpHelper.Post(UpdateUri, saveData, "application/json", Encoding.UTF8);
             if (commit) Commit();
             if (optimize) Optimize();
             return this;
         }
 
-        protected IOperations ExecuteDelete(string query)
+        protected IOperations ExecuteDelete(string query, bool commit)
         {
-            query = "{\"delete\": {" + query + "}}";
-            _httpHelper.Post(UpdateUri, query, "application/json", Encoding.UTF8);
+            query = "<delete><query>" + query + "</query></delete>";
+            _httpHelper.Post(UpdateUri, query, "application/xml", Encoding.UTF8);
+            if (commit) Commit();
             return this;
         }
 
@@ -122,6 +138,9 @@ namespace MicroSolr.Core.Operations
             {
                 qsParts.Add("q", command.Query);
             }
+
+            qsParts.Add("rows", command.MaxRows.ToString());
+            qsParts.Add("start", command.StartIndex.ToString());
 
             qsParts.Add("wt", Enum.GetName(typeof (FormatType), command.ResponseFormat).ToLowerInvariant());
             return QueryStringFromDicionary(qsParts);

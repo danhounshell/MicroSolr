@@ -27,6 +27,6 @@ namespace MicroSolr.Core
     {
         string Serialize(TData data, FormatType format);
         string Serialize(IEnumerable<TData> data, FormatType format);
-        IEnumerable<TData> DeSerialize(string stream, FormatType format);
+        IEnumerable<TData> DeSerialize(string stream, FormatType format, out long start, out long numFound);
     }
 }

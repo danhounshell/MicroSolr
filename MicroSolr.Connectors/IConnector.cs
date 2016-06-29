@@ -38,12 +38,14 @@ namespace MicroSolr.Connectors
         /// <returns>List of matching objects.</returns>
         IEnumerable<TData> Query(string query, long startIndex = 0, long maxRows = 1000, bool getAll = false);
 
+        IEnumerable<TData> Query(string query, out long start, out long numFound, long startIndex = 0, long maxRows = 1000, bool getAll = false);
+
         /// <summary>
         ///     Saves all the objects in the solr core. Commit will be  called automatically after all the objects are saved.
         /// </summary>
         /// <param name="items">List of items</param>
         void Save(params TData[] items);
 
-        void Delete(string query);
+        void Delete(string query, bool commit = true);
     }
 }

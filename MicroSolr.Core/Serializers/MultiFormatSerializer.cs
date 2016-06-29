@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace MicroSolr.Core.Serializers
 {
@@ -34,12 +35,20 @@ namespace MicroSolr.Core.Serializers
                 case FormatType.XML:
                     throw new NotImplementedException("Feature not available yet");
                 case FormatType.JSON:
-                    return JsonConvert.SerializeObject(data);
+                    return JsonConvert.SerializeObject(data, Formatting.None, new JsonSerializerSettings() { ContractResolver = new LowercaseContractResolver(), NullValueHandling = NullValueHandling.Ignore });
                 case FormatType.CSV:
                     throw new NotImplementedException("Feature not available yet");
                 case FormatType.Custom:
                 default:
                     throw new NotImplementedException("Please inherit custom serializer logic.");
+            }
+        }
+
+        public class LowercaseContractResolver : DefaultContractResolver
+        {
+            protected override string ResolvePropertyName(string propertyName)
+            {
+                return propertyName.ToLower();
             }
         }
 
@@ -50,7 +59,7 @@ namespace MicroSolr.Core.Serializers
                 case FormatType.XML:
                     throw new NotImplementedException("Feature not available yet");
                 case FormatType.JSON:
-                    return JsonConvert.SerializeObject(data);
+                    return JsonConvert.SerializeObject(data, Formatting.None, new JsonSerializerSettings() { ContractResolver = new LowercaseContractResolver(), NullValueHandling = NullValueHandling.Ignore });
                 case FormatType.CSV:
                     throw new NotImplementedException("Feature not available yet");
                 case FormatType.Custom:
@@ -59,7 +68,7 @@ namespace MicroSolr.Core.Serializers
             }
         }
 
-        public IEnumerable<TData> DeSerialize(string stream, FormatType format)
+        public IEnumerable<TData> DeSerialize(string stream, FormatType format, out long start, out long numFound)
         {
             switch (format)
             {
@@ -67,6 +76,8 @@ namespace MicroSolr.Core.Serializers
                     throw new NotImplementedException("Feature not available yet");
                 case FormatType.JSON:
                     var response = JsonConvert.DeserializeObject<JsonResponse>(stream);
+                    start = response.Response.Start;
+                    numFound = response.Response.NumFound;
                     return response.Response.Docs;
                 case FormatType.CSV:
                     throw new NotImplementedException("Feature not available yet");

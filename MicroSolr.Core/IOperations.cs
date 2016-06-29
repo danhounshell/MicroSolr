@@ -28,10 +28,13 @@ namespace MicroSolr.Core
         IEnumerable<TOutput> Load<TOutput>(ILoadCommand command, IDataSerializer<TOutput> serializer,
             IResponseFormatter<string> formatter);
 
+        IEnumerable<TOutput> Load<TOutput>(ILoadCommand command, IDataSerializer<TOutput> serializer,
+            IResponseFormatter<string> formatter, out long start, out long numFound);
+
         IOperations Save<TData>(ISaveCommand<TData> command, IDataSerializer<TData> serializer, bool commit = true,
             bool optimize = false);
 
-        IOperations Delete(string query);
+        IOperations Delete(string query, bool commit = true);
 
         IOperations Commit();
 
