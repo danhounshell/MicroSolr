@@ -142,6 +142,11 @@ namespace MicroSolr.Core.Operations
             qsParts.Add("rows", command.MaxRows.ToString());
             qsParts.Add("start", command.StartIndex.ToString());
 
+            if (!string.IsNullOrEmpty(command.Sort))
+            {
+                qsParts.Add("sort", command.Sort);
+            }
+
             qsParts.Add("wt", Enum.GetName(typeof (FormatType), command.ResponseFormat).ToLowerInvariant());
             return QueryStringFromDicionary(qsParts);
         }

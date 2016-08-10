@@ -35,6 +35,8 @@ namespace MicroSolr.Core
 
         string Query { get; set; }
 
+        string Sort { get; set; }
+
         string FilterQuery { get; set; }
 
         string FieldFilter { get; set; }

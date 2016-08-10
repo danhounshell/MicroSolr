@@ -33,6 +33,8 @@ namespace MicroSolr.Core.Commands
 
         public string Query { get; set; }
 
+        public string Sort { get; set; }
+
         public string FilterQuery { get; set; }
 
         public string FieldFilter { get; set; }
@@ -43,6 +45,7 @@ namespace MicroSolr.Core.Commands
             {
                 FieldFilter = FieldFilter,
                 Query = Query,
+                Sort = Sort,
                 FilterQuery = FilterQuery,
                 GetAll = GetAll,
                 MaxRows = MaxRows,

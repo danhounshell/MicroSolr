@@ -55,6 +55,7 @@ namespace MicroSolr.Connectors
         ///     Queries the core and returns a list of matching objects
         /// </summary>
         /// <param name="query">Solr query (q=)</param>
+        /// <param name="sort">Sort</param>
         /// <param name="startIndex">Result start index</param>
         /// <param name="maxRows">Maximum rows to be returned</param>
         /// <param name="getAll">
@@ -62,11 +63,12 @@ namespace MicroSolr.Connectors
         ///     true.
         /// </param>
         /// <returns>List of matching objects.</returns>
-        public virtual IEnumerable<TData> Query(string query, long startIndex = 0, long maxRows = 1000,
+        public virtual IEnumerable<TData> Query(string query, string sort = "", long startIndex = 0, long maxRows = 1000,
             bool getAll = false)
         {
             var cmd = _client.DefaultCore.CreateLoadCommand();
             cmd.Query = query;
+            cmd.Sort = sort;
             cmd.ResponseFormat = FormatType.JSON;
             cmd.StartIndex = startIndex;
             cmd.MaxRows = maxRows;
@@ -80,6 +82,7 @@ namespace MicroSolr.Connectors
         ///     Queries the core and returns a list of matching objects
         /// </summary>
         /// <param name="query">Solr query (q=)</param>
+        /// <param name="sort">Sort</param>
         /// <param name="startIndex">Result start index</param>
         /// <param name="maxRows">Maximum rows to be returned</param>
         /// <param name="getAll">
@@ -87,11 +90,12 @@ namespace MicroSolr.Connectors
         ///     true.
         /// </param>
         /// <returns>List of matching objects.</returns>
-        public virtual IEnumerable<TData> Query(string query, out long start, out long numFound, long startIndex = 0, long maxRows = 1000,
+        public virtual IEnumerable<TData> Query(string query, out long start, out long numFound, string sort = "", long startIndex = 0, long maxRows = 1000,
             bool getAll = false)
         {
             var cmd = _client.DefaultCore.CreateLoadCommand();
             cmd.Query = query;
+            cmd.Sort = sort;
             cmd.ResponseFormat = FormatType.JSON;
             cmd.StartIndex = startIndex;
             cmd.MaxRows = maxRows;

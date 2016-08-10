@@ -29,6 +29,7 @@ namespace MicroSolr.Connectors
         ///     Queries the core and returns a list of matching objects
         /// </summary>
         /// <param name="query">Solr query (q=)</param>
+        /// <param name="sort">Sort</param>
         /// <param name="startIndex">Result start index</param>
         /// <param name="maxRows">Maximum rows to be returned</param>
         /// <param name="getAll">
@@ -36,9 +37,9 @@ namespace MicroSolr.Connectors
         ///     true.
         /// </param>
         /// <returns>List of matching objects.</returns>
-        IEnumerable<TData> Query(string query, long startIndex = 0, long maxRows = 1000, bool getAll = false);
+        IEnumerable<TData> Query(string query, string sort = "", long startIndex = 0, long maxRows = 1000, bool getAll = false);
 
-        IEnumerable<TData> Query(string query, out long start, out long numFound, long startIndex = 0, long maxRows = 1000, bool getAll = false);
+        IEnumerable<TData> Query(string query, out long start, out long numFound, string sort = "", long startIndex = 0, long maxRows = 1000, bool getAll = false);
 
         /// <summary>
         ///     Saves all the objects in the solr core. Commit will be  called automatically after all the objects are saved.
